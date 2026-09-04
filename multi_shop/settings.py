@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     #My apps
     'accounts'
+    'home'
 
 ]
 AUTH_USER_MODEL = "accounts.User"
