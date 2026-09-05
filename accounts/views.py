@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView
+from django.views import View
 from . import forms
 from . import models
 from django.contrib.auth import login
@@ -32,6 +33,28 @@ class UserAuthView(FormView):
         print(otp.code)
         otp.save()
         return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+class ResendOtpView(View):
+    def post(self, request):
+        try:
+            otp = services.OtpService.resend_otp(token=request.POST.get("token"))
+            print("token: " + request.POST.get("token"))
+            print(otp.code)
+            return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+        except services.OtpRequestToSoon:
+            messages.error(request, "you must wait for 1 minute for send new code", extra_tags="otp-too-soon")
+            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+        except services.OtpShortTermLimitExceeded:
+            messages.error(request, "you can ask 3 code in 10 minutes", extra_tags="otp-short-limit")
+            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+        except services.OtpDailyLimitExceeded:
+            messages.error(request, "you can ask 20 code in 24 houres", extra_tags="otp-daily-limit")
+            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+        except services.InvalidOtpError:
+            print("token: " + request.POST.get("token"))
+            return redirect("accounts:user_authentication")
+    def get(self, request):
+        return redirect("accounts:user_authentication")
+
 class VerifyCodeView(FormView):
     form_class = forms.VerifyCodeForm
     template_name = "accounts/verify_code.html"
