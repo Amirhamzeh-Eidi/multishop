@@ -3,9 +3,13 @@ from django.urls import reverse_lazy
 from django.views.generic import FormView
 from . import forms
 from . import models
+from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from random import randint
 from django.urls import reverse
+from . import services
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -28,3 +32,54 @@ class UserAuthView(FormView):
         print(otp.code)
         otp.save()
         return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+class VerifyCodeView(FormView):
+    form_class = forms.VerifyCodeForm
+    template_name = "accounts/verify_code.html"
+    def form_valid(self, form):
+        try:
+            otp = services.OtpService.verify(token=self.request.GET.get("token"), code=form.cleaned_data["code"])
+        except services.InvalidOtpError:
+            form.add_error("code", ValidationError("you dont have active code, send code again!", code="invalid_otp"))
+            return self.form_invalid(form)
+        except services.ExpiredOtpError:
+            form.add_error("code", ValidationError("your code expired", code="expired_code"))
+            return self.form_invalid(form)
+        except services.ToManyAttemptsError:
+            form.add_error("code", ValidationError("to many attemts.", code="to_many_attempts"))
+            return self.form_invalid(form)
+        except services.WrongOtpError:
+            form.add_error("code", ValidationError("your code is wrong", code="wrong_code"))
+            return self.form_invalid(form)
+        phone = otp.identifier
+        try:
+            user = models.User.objects.get(phone=phone)
+        except models.User.DoesNotExist:
+            user = models.User.objects.create_user(phone=phone)
+            user.save()
+        login(self.request, user)
+        return redirect(reverse("home:home"))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context["form"]
+        context["invalid_otp"] = form.has_error(
+            "code", 
+            "invalid_otp"
+        )
+        context["expired_code"] = form.has_error(
+            "code", 
+            "expired_code"
+        )
+        context["to_many_attempts"] = form.has_error(
+            "code", 
+            "to_many_attempts"
+        )
+        context["wrong_code"] = form.has_error(
+            "code", 
+            "wrong_code"
+        )
+        return context
+    
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect("home:home")
+        return super().dispatch(request, *args, **kwargs)

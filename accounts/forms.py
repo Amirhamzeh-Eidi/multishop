@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
-
-from .models import User
+from .models import User, Otp
 
 
 class UserCreationForm(forms.ModelForm):
@@ -49,3 +48,16 @@ class UserLoginForm(AuthenticationForm):
 
 class UserAuthForm(forms.Form):
     phone = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Phone number"}))
+
+    
+class VerifyCodeForm(forms.Form):
+    code = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Code"}))
+
+    def clean(self):
+        cleaned_data=super().clean()
+        data = self.cleaned_data["code"]
+        if not data.isdigit():
+            raise ValidationError("your code must be number")
+        elif len(data) != 4:
+            raise ValidationError("your code must have 4 character!")
+        return cleaned_data
