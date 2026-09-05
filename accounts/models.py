@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import UserManager
+from secrets import token_urlsafe
+from  django.utils import timezone
+from datetime import timedelta
 class User(PermissionsMixin, AbstractBaseUser):
     phone = models.CharField(
         verbose_name="phone number",
@@ -25,3 +28,13 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def __str__(self):
         return self.phone
+def get_otp_expiration():
+    return timezone.now() + timedelta(minutes=2)
+class Otp(models.Model):
+    identifier = models.CharField(max_length=20)
+    token = models.CharField(max_length=100, default=token_urlsafe, unique=True, editable=False)
+    code = models.CharField(max_length=4)
+    expires_at = models.DateTimeField(default=get_otp_expiration)
+    created_at = models.DateTimeField(auto_now_add=True)
+    attempts = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
