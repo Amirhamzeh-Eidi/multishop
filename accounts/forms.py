@@ -45,3 +45,7 @@ class UserChangeForm(forms.ModelForm):
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Phone number"}))
     password = forms.CharField(max_length=20, widget=forms.PasswordInput(attrs={"class":"form-control", "placeholder":"Password"}))
+
+
+class UserAuthForm(forms.Form):
+    phone = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Phone number"}))

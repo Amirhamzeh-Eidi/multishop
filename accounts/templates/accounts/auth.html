@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block main %}
+    <div class="container-fluid">
+        <h2 class="section-title position-relative text-uppercase text-center mx-xl-5 mb-4"><span class="bg-secondary pr-3">Rgister/Login</span></h2>
+        <div class=" px-xl-5">
+            <div class=" mb-5 contact-us" style="">
+                <div class="contact-form bg-light p-30">
+                    <div id="success"></div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="control-group">
+                            {{ form.errors }}
+                            {{form.phone}}
+                            <p class="help-block text-danger"></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send code</button>
+                        <a href="{% url "accounts:user_login" %}" class="btn btn-primary ">Login with password</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main %}
