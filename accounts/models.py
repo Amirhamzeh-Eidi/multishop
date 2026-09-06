@@ -48,3 +48,19 @@ class City(models.Model):
     province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name='cities')
     def __str__(self):
         return f"{self.name}-{self.province}"
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    full_address = models.TextField()
+    postal_code = models.CharField(max_length=10)
+    recipient_name = models.CharField(max_length=30)
+    recipient_phone = models.CharField(max_length=50)
+    is_default = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.user.phone
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user'],condition=models.Q(is_default=True), name="uniqe_default_address_per_user")
+        ]
