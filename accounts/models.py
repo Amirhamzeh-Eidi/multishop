@@ -38,3 +38,8 @@ class Otp(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     attempts = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
+class Province(models.Model):
+    name = models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
+    
