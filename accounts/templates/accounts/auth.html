@@ -13,8 +13,15 @@
                             {{form.phone}}
                             <p class="help-block text-danger"></p>
                         </div>
+                        {% if request.GET.next %}
+                        <input type="hidden" name="next" value={{request.GET.next}}>
+                        {% endif %}
                         <button type="submit" class="btn btn-primary">Send code</button>
+                        {% if request.GET.next %}
+                        <a href="{% url "accounts:user_login" %}?next={{request.GET.next|urlencode}}" class="btn btn-primary ">Login with password</a>
+                        {% else %}
                         <a href="{% url "accounts:user_login" %}" class="btn btn-primary ">Login with password</a>
+                        {% endif %}
                     </form>
                 </div>
             </div>

@@ -20,6 +20,9 @@ class UserLoginView(LoginView):
     authentication_form = forms.UserLoginForm
     redirect_authenticated_user = True
     def get_success_url(self):
+        next_url = self.request.GET.get("next") or self.request.POST.get("next")
+        if next_url:
+            return next_url
         return reverse_lazy("home:home")
 class UserAuthView(FormView):
     form_class = forms.UserAuthForm
@@ -31,26 +34,42 @@ class UserAuthView(FormView):
     def form_valid(self, form):
         otp = models.Otp(identifier=form.cleaned_data["phone"], code=randint(1000, 9999))
         print(otp.code)
+        next_url = self.request.POST.get("next")
         otp.save()
-        return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+        if next_url:
+            return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
+        else:
+            return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
 class ResendOtpView(View):
     def post(self, request):
+        next_url = self.request.POST.get("next")
         try:
             otp = services.OtpService.resend_otp(token=request.POST.get("token"))
             print("token: " + request.POST.get("token"))
             print(otp.code)
-            return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+            if next_url:
+                return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
+            else:
+                return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
         except services.OtpRequestToSoon:
             messages.error(request, "you must wait for 1 minute for send new code", extra_tags="otp-too-soon")
+            if next_url:
+                return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.OtpShortTermLimitExceeded:
             messages.error(request, "you can ask 3 code in 10 minutes", extra_tags="otp-short-limit")
+            if next_url:
+                return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.OtpDailyLimitExceeded:
             messages.error(request, "you can ask 20 code in 24 houres", extra_tags="otp-daily-limit")
+            if next_url:
+                return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.InvalidOtpError:
             print("token: " + request.POST.get("token"))
+            if next_url:
+                return redirect(reverse("accounts:user_authentication" + f"?next={next_url}"))
             return redirect("accounts:user_authentication")
     def get(self, request):
         return redirect("accounts:user_authentication")
@@ -80,6 +99,9 @@ class VerifyCodeView(FormView):
             user = models.User.objects.create_user(phone=phone)
             user.save()
         login(self.request, user)
+        next_url = self.request.GET.get("next") or self.request.POST.get("next")
+        if next_url:
+            return redirect(next_url)
         return redirect(reverse("home:home"))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -17,6 +17,11 @@
                             <p class="help-block text-danger"></p>
                         </div>
                         <button type="submit" class="btn btn-primary">Login</button>
+                        {% if request.GET.next %}
+                        <a type="button" href="{% url 'accounts:user_authentication'%}?next={{request.GET.next|urlencode}}" class="btn btn-primary">Login with SMS</a>
+                        {% else %}
+                        <a type="button" href="{% url 'accounts:user_authentication'%}" class="btn btn-primary">Login with SMS</a>
+                        {% endif %}
                     </form>
                 </div>
             </div>
