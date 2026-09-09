@@ -47,7 +47,6 @@ class ResendOtpView(View):
         next_url = self.request.POST.get("next")
         try:
             otp = services.OtpService.resend_otp(token=request.POST.get("token"))
-            print("token: " + request.POST.get("token"))
             print(otp.code)
             if next_url:
                 return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
@@ -69,9 +68,8 @@ class ResendOtpView(View):
                 return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.InvalidOtpError:
-            print("token: " + request.POST.get("token"))
             if next_url:
-                return redirect(reverse("accounts:user_authentication" + f"?next={next_url}"))
+                return redirect(reverse("accounts:user_authentication") + f"?next={next_url}")
             return redirect("accounts:user_authentication")
     def get(self, request):
         return redirect("accounts:user_authentication")

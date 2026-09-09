@@ -49,7 +49,6 @@ class OtpService():
             if count_1_min:
                 raise OtpRequestToSoon()
             if count_10_min >= 3:
-                print(count_10_min)
                 raise OtpShortTermLimitExceeded()
             if count_24_hours >= 20:
                 raise OtpDailyLimitExceeded()
