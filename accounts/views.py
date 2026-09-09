@@ -1,6 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.http import JsonResponse
+from django.views.generic import FormView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from . import forms
 from . import models
@@ -128,3 +130,31 @@ class VerifyCodeView(FormView):
         if self.request.user.is_authenticated:
             return redirect("home:home")
         return super().dispatch(request, *args, **kwargs)
+
+class AddAddressView(LoginRequiredMixin, CreateView):
+    model = models.Address
+    form_class = forms.AddressForm
+    template_name = 'accounts/add_address.html'
+    def get_success_url(self):
+        next_url = self.request.GET.get("next") or self.request.POST.get("next")
+        if next_url:
+            return next_url
+        return reverse_lazy("accounts:addresses_list")
+    def form_valid(self, form):
+        address = form.save(commit=False)
+        user = self.request.user
+        address.user = user
+        if models.Address.objects.filter(user=user).count() >=5:
+            form.add_error(None, ValidationError("you can create 5 address in maximum", code="address_count_limit"))
+            return self.form_invalid(form)
+        return super().form_valid(form)
+        if address.is_default:
+            models.Address.objects.filter(user=address.user, is_default=True).update(is_default=False)
+            address.save()
+        return super().form_valid(form)
+def get_cities(request, pk):
+    cities = models.City.objects.filter(province_id=pk).values("id", "name")
+    return JsonResponse(
+        list(cities),
+        safe=False
+    )

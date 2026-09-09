@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import User, Otp
+from .models import User, Otp, Address, Province, City
 
 
 class UserCreationForm(forms.ModelForm):
@@ -61,3 +61,45 @@ class VerifyCodeForm(forms.Form):
         elif len(data) != 4:
             raise ValidationError("your code must have 4 character!")
         return cleaned_data
+class AddressForm(forms.ModelForm):
+    province = forms.ModelChoiceField(queryset=Province.objects.all(), widget=forms.Select(attrs={'class':'custom-select'}))
+    city = forms.ModelChoiceField(queryset=City.objects.all(), widget=forms.Select(attrs={'class':'custom-select'}))
+    class Meta:
+        model = Address
+        exclude = ["user"]
+        widgets = {
+            'full_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'postal_code': forms.TextInput(attrs={'class': 'form-control'}),
+            'recipient_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'recipient_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_default': forms.CheckboxInput(attrs={'class':'form-ckeck'}),
+            
+        }
+        labels = {
+            "is_default":"Make address default: "
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["city"].queryset = City.objects.none()
+
+        if "province" in self.data:
+            try:
+                province_id = int(self.data.get("province"))
+                self.fields["city"].queryset = City.objects.filter(
+                    province_id=province_id
+                )
+            except (TypeError, ValueError):
+                pass
+
+        elif self.instance.pk:
+            self.fields["province"].initial = self.instance.city.province
+            self.fields["city"].queryset = City.objects.filter(
+                province=self.instance.city.province
+            )
+    def clean(self):
+        cleaned_data = super().clean()
+        city = cleaned_data["city"]
+        province = cleaned_data["province"]
+        if not city.province.id == province.id:
+            raise ValidationError("city and province does not blong together")
