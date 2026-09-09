@@ -158,3 +158,7 @@ def get_cities(request, pk):
         list(cities),
         safe=False
     )
+class AddressListView(LoginRequiredMixin, ListView):
+    model = models.Address
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)

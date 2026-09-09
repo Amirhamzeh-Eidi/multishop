@@ -11,4 +11,5 @@ urlpatterns = [
     path("auth/resend-code/", views.ResendOtpView.as_view(), name="resend_code"),
     path('addresses/add/', views.AddAddressView.as_view(), name="add_address"),
     path('cities/<int:pk>/', views.get_cities, name="get_cities"),
+    path('addresses/', views.AddressListView.as_view(), name="addresses_list"),
 ]
