@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from . import forms
@@ -151,13 +151,28 @@ class AddAddressView(LoginRequiredMixin, CreateView):
         if address.is_default:
             models.Address.objects.filter(user=address.user, is_default=True).update(is_default=False)
             address.save()
-        return super().form_valid(form)
 def get_cities(request, pk):
     cities = models.City.objects.filter(province_id=pk).values("id", "name")
     return JsonResponse(
         list(cities),
         safe=False
     )
+
+class AddressEditView(LoginRequiredMixin, UpdateView):
+    form_class = forms.AddressForm
+    template_name = 'accounts/edit_address.html'
+    success_url = reverse_lazy("accounts:addresses_list")
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+    def form_valid(self, form):
+        address = form.save(commit=False)
+        address.user = self.request.user
+        if address.is_default:
+            models.Address.objects.filter(user=address.user, is_default=True).update(is_default=False)
+            address.save()
+        return super().form_valid(form)
+    model = models.Address
+
 class AddressListView(LoginRequiredMixin, ListView):
     model = models.Address
     def get_queryset(self):
