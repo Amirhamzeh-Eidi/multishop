@@ -25,7 +25,7 @@ class UserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         # Save the provided password in hashed format
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
+        user.set_password(self.cleaned_data.get("password1"))
         if commit:
             user.save()
         return user
@@ -51,11 +51,11 @@ class UserAuthForm(forms.Form):
 
     
 class VerifyCodeForm(forms.Form):
-    code = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Code"}))
+    code = forms.CharField(max_length=4, min_length=4, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Code"}))
 
     def clean(self):
         cleaned_data=super().clean()
-        data = self.cleaned_data["code"]
+        data = self.cleaned_data.get("code")
         if not data.isdigit():
             raise ValidationError("your code must be number")
         elif len(data) != 4:
@@ -99,7 +99,7 @@ class AddressForm(forms.ModelForm):
             )
     def clean(self):
         cleaned_data = super().clean()
-        city = cleaned_data["city"]
-        province = cleaned_data["province"]
+        city = cleaned_data.get("city")
+        province = cleaned_data.get("province")
         if not city.province.id == province.id:
             raise ValidationError("city and province does not blong together")

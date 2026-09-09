@@ -8,7 +8,7 @@ from . import forms
 from . import models
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
-from random import randint
+import secrets
 from django.urls import reverse
 from . import services
 from django.contrib import messages
@@ -34,7 +34,7 @@ class UserAuthView(FormView):
             return redirect("home:home")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
-        otp = models.Otp(identifier=form.cleaned_data["phone"], code=randint(1000, 9999))
+        otp = models.Otp(identifier=form.cleaned_data.get("phone"), code=str(secrets.randbelow(9000)+1000))
         print(otp.code)
         next_url = self.request.POST.get("next")
         otp.save()
@@ -81,7 +81,7 @@ class VerifyCodeView(FormView):
     template_name = "accounts/verify_code.html"
     def form_valid(self, form):
         try:
-            otp = services.OtpService.verify(token=self.request.GET.get("token"), code=form.cleaned_data["code"])
+            otp = services.OtpService.verify(token=self.request.GET.get("token"), code=form.cleaned_data.get("code"))
         except services.InvalidOtpError:
             form.add_error("code", ValidationError("you dont have active code, send code again!", code="invalid_otp"))
             return self.form_invalid(form)
@@ -188,10 +188,10 @@ class ChangePhoneView(LoginRequiredMixin, FormView):
     form_class = forms.UserAuthForm
     template_name = "accounts/change_phone.html"
     def form_valid(self, form):
-        if models.User.objects.filter(phone=form.cleaned_data["phone"]).exists():
+        if models.User.objects.filter(phone=form.cleaned_data.get("phone")).exists():
             form.add_error("phone", ValidationError("this phone already exist."))
             return self.form_invalid(form)
-        otp = models.Otp(identifier=form.cleaned_data["phone"], code=randint(1000, 9999))
+        otp = models.Otp(identifier=form.cleaned_data.get("phone"), code=str(secrets.randbelow(9000)+1000))
         print(otp.code)
         otp.save()
         next_url = self.request.POST.get("next")
@@ -205,7 +205,7 @@ class VerifyChangePhoneView(LoginRequiredMixin, FormView):
     template_name = "accounts/verify_change_phone.html"
     def form_valid(self, form):
         try:
-            otp = services.OtpService.verify(token=self.request.GET.get("token"), code=form.cleaned_data["code"])
+            otp = services.OtpService.verify(token=self.request.GET.get("token"), code=form.cleaned_data.get("code"))
         except services.InvalidOtpError:
             form.add_error("code", ValidationError("you dont have active code, send code again!", code="invalid_otp"))
             return self.form_invalid(form)
