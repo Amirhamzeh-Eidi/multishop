@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block main %}
+    <div class="container-fluid">
+        <h2 class="section-title position-relative text-uppercase text-center mx-xl-5 mb-4"><span class="bg-secondary pr-3">Verify Code</span></h2>
+        <div class=" px-xl-5">
+            <div class=" mb-5 contact-us" style="">
+                <div class="contact-form bg-light p-30">
+                    <div id="success"></div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="control-group">
+                            {% for message in messages %}
+                            {{message}}
+                            {% endfor %}
+                            {{form.non_field_errors}}
+                            {{form.code.errors}}
+                            {{form.code}}
+                            <p class="help-block text-danger"></p>
+                        </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a class="btn btn-primary" href="{% url 'accounts:change_phone' %}">Edit phone number</a>
+                    </form>
+                        <form action="{% url 'accounts:resend_code_change_phone' %}" method="post" class="mt-3">
+                            {% csrf_token %}
+                            <label >Don't get the code?</label>
+                            <input type="hidden" name="token" id="" value="{{request.GET.token}}">
+                            <button type="submit" class="btn btn-primary" >Resend</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main %}
