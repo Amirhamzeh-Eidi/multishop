@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="container">
+    <h3><strong>
+        Are you sure you want to delete this address?
+    </strong></h3>
+                <p>
+                    <strong>Province: </strong><span>
+                    {{ address.city.province }}
+                </p>
+
+                <p>
+                    <strong>City: </strong>
+                    {{ address.city }}
+                </p>
+
+                <p>
+                    <strong>Full address: </strong>
+                    {{ address.full_address }}
+                </p>
+
+                <p>
+                    <strong>Postal code: </strong>
+                    {{ address.postal_code }}
+                </p>
+
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button class="btn btn-danger m-1" type="submit">
+            Yes
+        </button>
+
+        <a class="btn btn-success m-1" href="{% url 'accounts:addresses_list' %}">
+            Cancel
+        </a>
+    </form>
+</div>
+
+{% endblock %}

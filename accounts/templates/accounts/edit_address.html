@@ -39,9 +39,9 @@
                             {{form.full_address}}
                         </div>
                         <div class="col-md-6 form-group">
-                            <button type="submit" class="btn btn-primary">Edit address</button>
+                            <button type="submit" class="btn btn-primary">Send changes</button>
+                            <a  class="btn btn-danger" href="{% url 'accounts:delete_address' address.id %}">Delete address</a>
                         </div>
-
                     </div>
                 </form>
             </div>

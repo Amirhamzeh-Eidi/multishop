@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.views.generic import FormView, CreateView, UpdateView, ListView
+from django.views.generic import FormView, CreateView, UpdateView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from . import forms
@@ -175,5 +175,11 @@ class AddressEditView(LoginRequiredMixin, UpdateView):
 
 class AddressListView(LoginRequiredMixin, ListView):
     model = models.Address
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+class AddressDeleteView(LoginRequiredMixin, DeleteView):
+    model = models.Address
+    success_url = reverse_lazy("accounts:addresses_list")
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
