@@ -20,4 +20,5 @@ urlpatterns = [
     path('addresses/set-default/<int:pk>', views.set_default_address, name="set_default_address"),
     path('profile/', views.ProfileView.as_view(), name="user_profile"),
     path('profile/edit/', views.ProfileEditView.as_view(), name="profile_edit"),
+    path('', views.DashboardView.as_view(), name="dashboard"),
 ]

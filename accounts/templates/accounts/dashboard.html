@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2>Dashboard</h2>
+        <p class="text-muted mb-0">
+              Wellcome {% if request.user.first_name%}{{request.user.first_name}}{% endif %}
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- اطلاعات شخصی -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Personal information</h5>
+
+                    <p class="card-text text-muted">
+                        Manage your personal information
+                    </p>
+
+                    <a href="{% url 'accounts:user_profile' %}"
+                       class="btn btn-primary">
+                        Profile 
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- سفارش‌ها -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">My orders</h5>
+
+                    <p class="card-text text-muted">
+                        View & Track orders
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-primary">
+                        view orders
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- آدرس‌ها -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">My address</h5>
+
+                    <p class="card-text text-muted">
+                        Manage your shipping addresses
+                    </p>
+                    {% if default_address %}
+                    <p>
+                        deafaut: {{default_address.full_address}}
+                    </p>
+                    {% endif %}
+
+                    <a href="{% url 'accounts:addresses_list' %}"
+                       class="btn btn-primary">
+                        Manage addresses
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- علاقه‌مندی‌ها -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Wishlist</h5>
+
+                    <p class="card-text text-muted">
+                        view your saved product
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-primary">
+                        view wishlist
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -282,6 +282,12 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("accounts:user_profile")
     def get_object(self, queryset=None):
         return self.request.user
+class DashboardView(TemplateView):
+    template_name = "accounts/dashboard.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["default_address"] = models.Address.objects.filter(is_default=True).first()
+        return context
 @login_required
 def set_default_address(request, pk):
     address = get_object_or_404(models.Address, id=pk, user=request.user)
