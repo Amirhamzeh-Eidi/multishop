@@ -1,8 +1,9 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.views.generic import FormView, CreateView, UpdateView, ListView, DeleteView
+from django.views.generic import FormView, CreateView, UpdateView, ListView, DeleteView, TemplateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.views import View
 from . import forms
 from . import models
@@ -266,3 +267,11 @@ class ResendOtpChangePhoneView(LoginRequiredMixin, View):
             return redirect("accounts:verify_change_phone")
     def get(self, request):
         return redirect("accounts:user_authentication")
+
+@login_required
+def set_default_address(request, pk):
+    address = get_object_or_404(models.Address, id=pk, user=request.user)
+    models.Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+    address.is_default = True
+    address.save()
+    return redirect("accounts:addresses_list")
