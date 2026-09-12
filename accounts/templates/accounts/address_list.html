@@ -6,38 +6,92 @@
     <div class="row g-4 mt-3">
         {% for address in object_list %}
             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                <div class="card h-100 shadow-sm position-relative">
-                    <div class="card-body">
-                        <p>
-                            <strong>Province: </strong><span>
-                            {{ address.city.province }}
-                        </p>
+                            <div class="card h-100">
 
-                        <p>
-                            <strong>City: </strong>
-                            {{ address.city }}
-                        </p>
+                                <div class="card-body">
 
-                        <p>
-                            <strong>Full address: </strong>
-                            {{ address.full_address }}
-                        </p>
+                                    <!-- Address Header -->
+                                    <div class="d-flex justify-content-between mb-2">
 
-                        <p>
-                            <strong>Postal code: </strong>
-                            {{ address.postal_code }}
-                        </p>
+                                        <div>
+                                        <strong>Recipient:</strong>
+                                        {{ address.recipient_name }}
+                                        </div>
+
+                                        {% if address.is_default %}
+
+                                            <span class="badge ">
+                                                Default address
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
 
 
-                        <a href="{% url 'accounts:edit_address' address.id %}"
-                           class="btn btn-primary">
-                            Edit
-                        </a>
-                        {% if address.is_default %}
-                        <span class="badge bg-success text-light">default</span>
-                        {% endif %}
-                    </div>
-                </div>
+                                    <!-- Address Information -->
+
+
+                                    <p class="mb-2">
+                                        <strong>Phone:</strong>
+                                        {{ address.recipient_phone }}
+                                    </p>
+
+                                    <p class="mb-2">
+                                        <strong>Province:</strong>
+                                        {{ address.city.province.name }}
+                                    </p>
+
+                                    <p class="mb-2">
+                                        <strong>City:</strong>
+                                        {{ address.city.name }}
+                                    </p>
+
+                                    <p class="mb-2">
+                                        <strong>Address:</strong>
+                                        {{ address.full_address }}
+                                    </p>
+
+                                    <p class="mb-3">
+                                        <strong>Postal Code:</strong>
+                                        {{ address.postal_code }}
+                                    </p>
+
+
+                                    <!-- Address Actions -->
+
+                                    <div class="d-flex gap-2">
+
+                                        <a
+                                            href="{% url 'accounts:edit_address' address.id %}"
+                                            class="btn btn-primary btn-sm mr-2"
+                                        >
+                                            Edit
+                                        </a>
+
+                                        <a
+                                            href="{% url 'accounts:delete_address' address.id %}"
+                                            class="btn btn-danger btn-sm mr-2"
+                                            >
+                                            Delete
+                                        </a>
+
+                                        {% if not address.is_default %}
+                                        <form action="{% url 'accounts:set_default_address' address.id %}">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-secondary btn-sm"
+                                            >
+                                                Set as Default
+                                        </button>
+                                        </form>
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
             </div>
         {% endfor %}
     </div>
