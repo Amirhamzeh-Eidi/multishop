@@ -268,6 +268,8 @@ class ResendOtpChangePhoneView(LoginRequiredMixin, View):
     def get(self, request):
         return redirect("accounts:user_authentication")
 
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/profile.html"
 @login_required
 def set_default_address(request, pk):
     address = get_object_or_404(models.Address, id=pk, user=request.user)
