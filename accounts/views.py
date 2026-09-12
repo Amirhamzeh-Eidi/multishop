@@ -231,6 +231,9 @@ class VerifyChangePhoneView(LoginRequiredMixin, FormView):
             user = self.request.user
             user.phone = phone
             user.save()
+        next_url = self.request.GET.get("next")
+        if next_url:
+            return redirect(next_url)
         return redirect(reverse("home:home"))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
