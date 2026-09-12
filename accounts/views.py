@@ -27,6 +27,7 @@ class UserLoginView(LoginView):
         if next_url:
             return next_url
         return reverse_lazy("home:home")
+
 class UserAuthView(FormView):
     form_class = forms.UserAuthForm
     template_name = "accounts/auth.html"
@@ -43,6 +44,7 @@ class UserAuthView(FormView):
             return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
         else:
             return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
+
 class ResendOtpView(View):
     def post(self, request):
         next_url = self.request.POST.get("next")
@@ -150,6 +152,7 @@ class AddAddressView(LoginRequiredMixin, CreateView):
             models.Address.objects.filter(user=address.user, is_default=True).update(is_default=False)
             address.save()
         return super().form_valid(form)
+
 def get_cities(request, pk):
     cities = models.City.objects.filter(province_id=pk).values("id", "name")
     return JsonResponse(
@@ -176,6 +179,8 @@ class AddressListView(LoginRequiredMixin, ListView):
     model = models.Address
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
+
+    
 
 class AddressDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Address
@@ -270,6 +275,13 @@ class ResendOtpChangePhoneView(LoginRequiredMixin, View):
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/profile.html"
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    template_name = "accounts/profile_edit.html"
+    model = models.User
+    form_class = forms.ProfileEditForm
+    success_url = reverse_lazy("accounts:user_profile")
+    def get_object(self, queryset=None):
+        return self.request.user
 @login_required
 def set_default_address(request, pk):
     address = get_object_or_404(models.Address, id=pk, user=request.user)

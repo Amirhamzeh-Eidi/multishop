@@ -1,0 +1,62 @@
+    .profile-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-image-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-image,
+    .profile-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+    }
+
+    .profile-image {
+        object-fit: cover;
+        display: block;
+    }
+
+    .profile-placeholder {
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #6c757d;
+    }
+
+    .profile-edit-btn {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        width: 36px;
+        height: 36px;
+
+        border-radius: 50%;
+        background: #0d6efd;
+        color: white;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+        border: 3px solid white;
+
+        font-size: 18px;
+    }
+
+    .profile-edit-btn:hover {
+        background: #0b5ed7;
+    }
+
+    .profile-section .profile-input {
+        display: none !important;
+    }

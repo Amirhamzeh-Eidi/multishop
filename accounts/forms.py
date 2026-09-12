@@ -104,3 +104,35 @@ class AddressForm(forms.ModelForm):
         if not city.province.id == province.id:
             raise ValidationError("city and province does not blong together")
         return cleaned_data
+
+class ProfileEditForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["phone"].disabled = True
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "profile",
+        ]
+
+        widgets = {
+            "first_name": forms.TextInput(attrs={
+                "class": "form-control",
+            }),
+            "last_name": forms.TextInput(attrs={
+                "class": "form-control",
+            }),
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+            }),
+            "phone": forms.TextInput(attrs={
+                "class": "form-control",
+            }),
+            "profile": forms.FileInput(attrs={
+                "class": "form-control profile-input",
+            }),
+        }
