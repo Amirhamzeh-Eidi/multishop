@@ -285,11 +285,11 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("accounts:user_profile")
     def get_object(self, queryset=None):
         return self.request.user
-class DashboardView(TemplateView):
+class DashboardView(TemplateView, LoginRequiredMixin):
     template_name = "accounts/dashboard.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["default_address"] = models.Address.objects.filter(is_default=True).first()
+        context["default_address"] = models.Address.objects.filter(is_default=True, user=self.request.user).first()
         return context
 @login_required
 def set_default_address(request, pk):
