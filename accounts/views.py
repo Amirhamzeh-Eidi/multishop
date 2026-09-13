@@ -14,7 +14,7 @@ from django.urls import reverse
 from . import services
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-
+from django.utils.http import url_has_allowed_host_and_scheme
 # Create your views here.
 
 
@@ -24,8 +24,8 @@ class UserLoginView(LoginView):
     redirect_authenticated_user = True
     def get_success_url(self):
         next_url = self.request.GET.get("next") or self.request.POST.get("next")
-        if next_url:
-            return next_url
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.self.request.get_host()}):
+            return redirect(next_url)
         return reverse_lazy("home:home")
 
 class UserAuthView(FormView):
@@ -40,7 +40,7 @@ class UserAuthView(FormView):
         print(otp.code)
         next_url = self.request.POST.get("next")
         otp.save()
-        if next_url:
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
         else:
             return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
@@ -51,27 +51,27 @@ class ResendOtpView(View):
         try:
             otp = services.OtpService.resend_otp(token=request.POST.get("token"))
             print(otp.code)
-            if next_url:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
             else:
                 return redirect(reverse("accounts:verify_code") + f"?token={otp.token}")
         except services.OtpRequestToSoon:
             messages.error(request, "you must wait for 1 minute for send new code", extra_tags="otp-too-soon")
-            if next_url:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.OtpShortTermLimitExceeded:
             messages.error(request, "you can ask 3 code in 10 minutes", extra_tags="otp-short-limit")
-            if next_url:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.OtpDailyLimitExceeded:
             messages.error(request, "you can ask 20 code in 24 houres", extra_tags="otp-daily-limit")
-            if next_url:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}&next={next_url}")
             return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
         except services.InvalidOtpError:
-            if next_url:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:user_authentication") + f"?next={next_url}")
             return redirect("accounts:user_authentication")
     def get(self, request):
@@ -103,7 +103,7 @@ class VerifyCodeView(FormView):
             user.save()
         login(self.request, user)
         next_url = self.request.GET.get("next") or self.request.POST.get("next")
-        if next_url:
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
         return redirect(reverse("home:home"))
     def get_context_data(self, **kwargs):
@@ -138,7 +138,7 @@ class AddAddressView(LoginRequiredMixin, CreateView):
     template_name = 'accounts/add_address.html'
     def get_success_url(self):
         next_url = self.request.GET.get("next") or self.request.POST.get("next")
-        if next_url:
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return next_url
         return reverse_lazy("accounts:addresses_list")
     def form_valid(self, form):
@@ -199,7 +199,7 @@ class ChangePhoneView(LoginRequiredMixin, FormView):
         print(otp.code)
         otp.save()
         next_url = self.request.POST.get("next")
-        if next_url:
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(reverse("accounts:verify_change_phone") + f"?token={otp.token}&next={next_url}")
         else:
             return redirect(reverse("accounts:verify_change_phone") + f"?token={otp.token}")
@@ -232,7 +232,7 @@ class VerifyChangePhoneView(LoginRequiredMixin, FormView):
             user.phone = phone
             user.save()
         next_url = self.request.GET.get("next")
-        if next_url:
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
         return redirect(reverse("home:home"))
     def get_context_data(self, **kwargs):
