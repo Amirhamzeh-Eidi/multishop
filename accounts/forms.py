@@ -105,7 +105,7 @@ class AddressForm(forms.ModelForm):
         cleaned_data = super().clean()
         city = cleaned_data.get("city")
         province = cleaned_data.get("province")
-        if not city.province.id == province.id:
+        if city and province and not city.province.id == province.id:
             raise ValidationError("city and province does not blong together")
         return cleaned_data
 
