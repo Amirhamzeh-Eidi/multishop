@@ -46,11 +46,11 @@ class OtpService():
             count_1_min = Otp.objects.filter(identifier=otp.identifier, created_at__gte=timezone.now() - timedelta(minutes=1))
             count_10_min = Otp.objects.filter(identifier=otp.identifier, created_at__gte=timezone.now() - timedelta(minutes=10))
             count_24_hours = Otp.objects.filter(identifier=otp.identifier, created_at__gte=timezone.now() - timedelta(hours=24))
-            if count_1_min:
+            if count_1_min.exists():
                 raise OtpRequestToSoon()
-            if count_10_min >= 3:
+            if count_10_min.count() >= 3:
                 raise OtpShortTermLimitExceeded()
-            if count_24_hours >= 20:
+            if count_24_hours.count() >= 20:
                 raise OtpDailyLimitExceeded()
             otp.active = False
             otp.save()
