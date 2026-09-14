@@ -18,6 +18,14 @@ class OtpShortTermLimitExceeded(Exception):
 class OtpDailyLimitExceeded(Exception):
     pass
 class OtpService():
+    @staticmethod
+    def create_otp(phone):
+        otp = Otp.objects.create(identifier=phone, code=str(secrets.randbelow(9000)+1000))
+        print(otp.code)
+        otp.save()
+        return otp
+
+    @staticmethod
     def verify(token, code):
         try:
             otp = Otp.objects.get(token=token, code=code, active=True)
@@ -39,6 +47,7 @@ class OtpService():
         otp.save(update_fields=["active"])
         return otp
 
+    @staticmethod
     def resend_otp(token):
         try:
             otp = Otp.objects.get(token=token)
@@ -54,7 +63,7 @@ class OtpService():
                 raise OtpDailyLimitExceeded()
             otp.active = False
             otp.save()
-            new_otp = Otp.objects.create(identifier=otp.identifier, code=str(secrets.randbelow(9000)+1000))
+            new_otp = OtpService.create_otp(phone=otp.identifier)
             return new_otp
         except Otp.DoesNotExist:
             raise InvalidOtpError()

@@ -9,7 +9,6 @@ from . import forms
 from . import models
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
-import secrets
 from django.urls import reverse
 from . import services
 from django.contrib import messages
@@ -36,10 +35,8 @@ class UserAuthView(FormView):
             return redirect("home:home")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
-        otp = models.Otp(identifier=form.cleaned_data.get("phone"), code=str(secrets.randbelow(9000)+1000))
-        print(otp.code)
+        otp = services.OtpService.create_otp(form.cleaned_data.get("phone"))
         next_url = self.request.POST.get("next")
-        otp.save()
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
         else:
@@ -50,7 +47,6 @@ class ResendOtpView(View):
         next_url = self.request.POST.get("next")
         try:
             otp = services.OtpService.resend_otp(token=request.POST.get("token"))
-            print(otp.code)
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
                 return redirect(reverse("accounts:verify_code") + f"?token={otp.token}&next={next_url}")
             else:
@@ -195,9 +191,7 @@ class ChangePhoneView(LoginRequiredMixin, FormView):
         if models.User.objects.filter(phone=form.cleaned_data.get("phone")).exists():
             form.add_error("phone", ValidationError("this phone already exist."))
             return self.form_invalid(form)
-        otp = models.Otp(identifier=form.cleaned_data.get("phone"), code=str(secrets.randbelow(9000)+1000))
-        print(otp.code)
-        otp.save()
+        otp = services.OtpService.create_otp(form.cleaned_data.get("phone"))
         next_url = self.request.POST.get("next")
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(reverse("accounts:verify_change_phone") + f"?token={otp.token}&next={next_url}")
