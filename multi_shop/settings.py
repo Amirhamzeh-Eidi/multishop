@@ -62,7 +62,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'multi_shop.wsgi.application'
 
-
+AUTHENTICATION_BACKENDS = [
+    "accounts.backends.PhoneBackend",
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

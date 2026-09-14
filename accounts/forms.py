@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import User, Otp, Address, Province, City
-
+from .validators import normalize_phone
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
@@ -49,6 +49,10 @@ class UserLoginForm(AuthenticationForm):
 class UserAuthForm(forms.Form):
     phone = forms.CharField(max_length=13, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Phone number"}))
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get("phone")
+        phone = normalize_phone(value=phone)
+        return phone
     
 class VerifyCodeForm(forms.Form):
     code = forms.CharField(max_length=4, min_length=4, widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"Code"}))
