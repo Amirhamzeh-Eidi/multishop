@@ -15,6 +15,7 @@
                     {% endif %}
                     <form method="post">
                         {% csrf_token %}
+                        {{form.errors}}
                         <div class="control-group">
                             {{form.username}}
                             <p class="help-block text-danger"></p>
