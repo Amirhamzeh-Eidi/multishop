@@ -2,8 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from .models import User
-from .validators import normalize_phone
+from .utils.phone import normalize_phone
 
 
 class PhoneBackend(ModelBackend):

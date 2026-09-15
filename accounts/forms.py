@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import User, Otp, Address, Province, City
-from .validators import normalize_phone
+from .utils.phone import normalize_phone
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
@@ -108,6 +107,10 @@ class AddressForm(forms.ModelForm):
         if city and province and not city.province.id == province.id:
             raise ValidationError("city and province does not blong together")
         return cleaned_data
+    def clean_recipient_phone(self):
+        recipient_phone = self.cleaned_data["recipient_phone"]
+        recipient_phone = normalize_phone(recipient_phone)
+        return recipient_phone
 
 class ProfileEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
