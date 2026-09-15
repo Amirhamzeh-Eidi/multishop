@@ -302,12 +302,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["default_address"] = models.Address.objects.filter(is_default=True, user=self.request.user).first()
         return context
 @login_required
-def set_default_address(request, pk):
-    address = get_object_or_404(models.Address, id=pk, user=request.user)
-    models.Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
-    address.is_default = True
-    address.save()
-    return redirect("accounts:addresses_list")
+def set_default_address(request):
+    if request.method == "POST":
+        address = get_object_or_404(models.Address, id=request.POST.get("pk"), user=request.user)
+        models.Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+        address.is_default = True
+        address.save()
+        return redirect("accounts:addresses_list")
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     form_class = forms.CustomPasswordChangeForm
