@@ -54,12 +54,12 @@ class Address(models.Model):
     full_address = models.TextField()
     postal_code = models.CharField(max_length=10)
     recipient_name = models.CharField(max_length=30)
-    recipient_phone = models.CharField(max_length=50)
+    recipient_phone = models.CharField(max_length=13)
     is_default = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return self.user.phone
+        return f"{self.recipient_name} - {self.city}"
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['user'],condition=models.Q(is_default=True), name="uniqe_default_address_per_user")
