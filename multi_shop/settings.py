@@ -17,7 +17,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+LOGIN_URL = "accounts:user_authentication"
 # Application definition
 
 INSTALLED_APPS = [
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     #My apps
-    'accounts'
+    'accounts',
 
 ]
 AUTH_USER_MODEL = "accounts.User"
