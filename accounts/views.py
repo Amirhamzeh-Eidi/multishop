@@ -8,7 +8,7 @@ from django.views import View
 from . import forms
 from . import models
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.urls import reverse
 from . import services
 from django.contrib import messages
@@ -308,6 +308,17 @@ def set_default_address(request, pk):
     address.is_default = True
     address.save()
     return redirect("accounts:addresses_list")
+
+class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    form_class = forms.CustomPasswordChangeForm
+    success_url = reverse_lazy("accounts:dashboard")
+    template_name = "accounts/password_change.html"
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and not self.request.user.has_usable_password():
+            return redirect("accounts:password_set")
+        return super().dispatch(request, *args, **kwargs)
+    
+
 class SetPasswordView(LoginRequiredMixin, FormView):
     template_name = "accounts/set_password.html"
     form_class = forms.CustomSetPasswordForm

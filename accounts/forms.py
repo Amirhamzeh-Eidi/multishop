@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
+from .models import User, Address, Province, City
 from .utils.phone import normalize_phone
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
@@ -144,6 +145,17 @@ class ProfileEditForm(forms.ModelForm):
                 "class": "form-control profile-input",
             }),
         }
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                "class": "form-control",
+            })
+
 class CustomSetPasswordForm(SetPasswordForm):
 
     def __init__(self, *args, **kwargs):
