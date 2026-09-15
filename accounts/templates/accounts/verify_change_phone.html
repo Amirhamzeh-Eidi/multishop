@@ -18,12 +18,19 @@
                             <p class="help-block text-danger"></p>
                         </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
+                            {% if request.GET.next %}
+                            <a class="btn btn-primary" href="{% url 'accounts:change_phone' %}?next={{request.GET.next}}">Edit phone number</a>
+                            {% else %}
                             <a class="btn btn-primary" href="{% url 'accounts:change_phone' %}">Edit phone number</a>
+                            {% endif %}
                     </form>
                         <form action="{% url 'accounts:resend_code_change_phone' %}" method="post" class="mt-3">
                             {% csrf_token %}
                             <label >Don't get the code?</label>
                             <input type="hidden" name="token" id="" value="{{request.GET.token}}">
+                            {% if request.GET.next %}
+                            <input type="hidden" name="next" id="" value="{{request.GET.next}}">
+                            {% endif %}
                             <button type="submit" class="btn btn-primary" >Resend</button>
                         </form>
                 </div>

@@ -1,7 +1,7 @@
-from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.views.generic import FormView, CreateView, UpdateView, ListView, DeleteView, TemplateView, DetailView
+from django.views.generic import FormView, CreateView, UpdateView, ListView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views import View
@@ -252,23 +252,38 @@ class VerifyChangePhoneView(LoginRequiredMixin, FormView):
 
 class ResendOtpChangePhoneView(LoginRequiredMixin, View):
     def post(self, request):
+        next_url = self.request.POST.get("next")
+        print(next_url)
         try:
             otp = services.OtpService.resend_otp(token=request.POST.get("token"))
             print(otp.code)
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+                return redirect(reverse("accounts:verify_change_phone") + f"?token={otp.token}&next={next_url}")
             return redirect(reverse("accounts:verify_change_phone") + f"?token={otp.token}")
         except services.OtpRequestToSoon:
             messages.error(request, "you must wait for 1 minute for send new code", extra_tags="otp-too-soon")
-            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+                return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}&next={next_url}")
+            return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}")
         except services.OtpShortTermLimitExceeded:
             messages.error(request, "you can ask 3 code in 10 minutes", extra_tags="otp-short-limit")
-            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+                return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}&next={next_url}")
+            return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}")
         except services.OtpDailyLimitExceeded:
             messages.error(request, "you can ask 20 code in 24 houres", extra_tags="otp-daily-limit")
-            return redirect(reverse("accounts:verify_code") + f"?token={request.POST.get('token')}")
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+                return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}&next={next_url}")
+            return redirect(reverse("accounts:verify_change_phone") + f"?token={request.POST.get('token')}")
         except services.InvalidOtpError:
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+                return redirect(reverse("accounts:verify_change_phone") + f"?next={next_url}")
             return redirect("accounts:verify_change_phone")
     def get(self, request):
-        return redirect("accounts:user_authentication")
+        next_url = self.request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+            return redirect(reverse("accounts:change_phone") + f"?next={next_url}")
+        return redirect("accounts:change_phone")
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/profile.html"
