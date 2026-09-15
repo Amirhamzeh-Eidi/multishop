@@ -13,12 +13,66 @@
         <div class="col-lg-6 text-center text-lg-right">
             <div class="d-inline-flex align-items-center">
                 <div class="btn-group">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-light dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                    >
+                        My Account
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-right">
+
+                        {% if user.is_authenticated %}
+
+                            <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">
+                                Dashboard
+                            </a>
+
+                            <a class="dropdown-item" href="#">
+                                Orders
+                            </a>
+
+                            <a class="dropdown-item" href="{% url 'accounts:addresses_list' %}">
+                                Addresses
+                            </a>
+
+                            <a class="dropdown-item" href="#">
+                                Favorites
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form action="{% url 'accounts:user_logout' %}?next={{request.get_full_path}}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    Logout
+                                </button>
+                            </form>
+
+                        {% else %}
+
+                            <a class="dropdown-item" href="{% url 'accounts:user_authentication' %}">
+                                Register / Login
+                            </a>
+
+
+                        {% endif %}
+
+                    </div>
+                </div>
+                {% comment %} <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
                     <div class="dropdown-menu dropdown-menu-right">
                         <button class="dropdown-item" type="button">Sign in</button>
                         <button class="dropdown-item" type="button">Sign up</button>
+                        <form action="{% url 'accounts:user_logout' %}" method="post">{% csrf_token %}
+                            <button type="submit" class="dropdown-item btn btn-outline-danger">Logout</button>
+                        </form>
                     </div>
-                </div>
+                </div> {% endcomment %}
             </div>
             <div class="d-inline-flex align-items-center d-block d-lg-none">
                 <a href="" class="btn px-0 ml-2">
