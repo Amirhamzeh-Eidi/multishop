@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField, AuthenticationForm
 from django.core.exceptions import ValidationError
 from .utils.phone import normalize_phone
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
@@ -143,3 +144,12 @@ class ProfileEditForm(forms.ModelForm):
                 "class": "form-control profile-input",
             }),
         }
+class CustomSetPasswordForm(SetPasswordForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                "class": "form-control",
+            })

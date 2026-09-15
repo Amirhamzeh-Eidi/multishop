@@ -10,7 +10,15 @@
               Wellcome {% if request.user.first_name%}{{request.user.first_name}}{% endif %}
         </p>
     </div>
-
+                {% if request.user.has_usable_password %}
+                    <a href="{% url 'accounts:password_change' %}" class="btn btn-primary mb-3">
+                        Change Password
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:password_set' %}" class="btn btn-primary mb-3">
+                        Set Password
+                    </a>
+                {% endif %}
     <div class="row g-4">
 
         <!-- اطلاعات شخصی -->

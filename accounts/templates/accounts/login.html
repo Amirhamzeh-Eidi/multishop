@@ -6,6 +6,13 @@
             <div class=" mb-5 contact-us" style="">
                 <div class="contact-form bg-light p-30">
                     <div id="success"></div>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <form method="post">
                         {% csrf_token %}
                         <div class="control-group">

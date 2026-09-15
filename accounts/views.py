@@ -14,6 +14,7 @@ from . import services
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.contrib import messages
 # Create your views here.
 
 
@@ -307,3 +308,22 @@ def set_default_address(request, pk):
     address.is_default = True
     address.save()
     return redirect("accounts:addresses_list")
+class SetPasswordView(LoginRequiredMixin, FormView):
+    template_name = "accounts/set_password.html"
+    form_class = forms.CustomSetPasswordForm
+    success_url = reverse_lazy("accounts:user_login")
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and self.request.user.has_usable_password():
+            return redirect("accounts:password_change")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, message="Your password has been saved successfully. Please log in with your new password.")
+        return super().form_valid(form)

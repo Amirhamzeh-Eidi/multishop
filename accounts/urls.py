@@ -21,4 +21,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name="user_profile"),
     path('profile/edit/', views.ProfileEditView.as_view(), name="profile_edit"),
     path('', views.DashboardView.as_view(), name="dashboard"),
+    path("password/set/", views.SetPasswordView.as_view(), name="password_set"),
 ]
