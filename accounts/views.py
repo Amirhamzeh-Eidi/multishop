@@ -23,16 +23,16 @@ class UserLoginView(LoginView):
     redirect_authenticated_user = True
     def get_success_url(self):
         next_url = self.request.GET.get("next") or self.request.POST.get("next")
-        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.self.request.get_host()}):
-            return redirect(next_url)
-        return reverse_lazy("home:home")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
+            return next_url
+        return reverse_lazy("accounts:dashboard")
 
 class UserAuthView(FormView):
     form_class = forms.UserAuthForm
     template_name = "accounts/auth.html"
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect("home:home")
+            return redirect("accounts:dashboard")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
         otp = services.OtpService.create_otp(form.cleaned_data.get("phone"))
@@ -101,7 +101,7 @@ class VerifyCodeView(FormView):
         next_url = self.request.GET.get("next") or self.request.POST.get("next")
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
-        return redirect(reverse("home:home"))
+        return redirect(reverse("accounts:dashboard"))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = context["form"]
@@ -125,7 +125,7 @@ class VerifyCodeView(FormView):
     
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
-            return redirect("home:home")
+            return redirect("accounts:dashboard")
         return super().dispatch(request, *args, **kwargs)
 
 class AddAddressView(LoginRequiredMixin, CreateView):
@@ -141,7 +141,7 @@ class AddAddressView(LoginRequiredMixin, CreateView):
         address = form.save(commit=False)
         user = self.request.user
         address.user = user
-        if models.Address.objects.filter(user=user).count() >=5:
+        if models.Address.objects.filter(user=user).count() >= 5:
             form.add_error(None, ValidationError("you can create 5 address in maximum", code="address_count_limit"))
             return self.form_invalid(form)
         if address.is_default:
@@ -228,7 +228,7 @@ class VerifyChangePhoneView(LoginRequiredMixin, FormView):
         next_url = self.request.GET.get("next")
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}):
             return redirect(next_url)
-        return redirect(reverse("home:home"))
+        return redirect(reverse("accounts:dashboard"))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = context["form"]
@@ -294,7 +294,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("accounts:user_profile")
     def get_object(self, queryset=None):
         return self.request.user
-class DashboardView(TemplateView, LoginRequiredMixin):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/dashboard.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -5,7 +5,7 @@ from django.contrib.auth.views import LogoutView
 app_name = "accounts"
 urlpatterns = [
     path("login/", views.UserLoginView.as_view(),name="user_login"),
-    path("logout/", LogoutView.as_view(next_page="home:home"),name="user_logout"),
+    path("logout/", LogoutView.as_view(),name="user_logout"),
     path("auth/", views.UserAuthView.as_view(),name="user_authentication"),
     path("auth/verify/", views.VerifyCodeView.as_view(),name="verify_code"),
     path("auth/resend-code/", views.ResendOtpView.as_view(), name="resend_code"),
