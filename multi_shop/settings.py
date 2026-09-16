@@ -30,7 +30,7 @@ INSTALLED_APPS = [
 
     #My apps
     'accounts',
-
+    'products',
 ]
 AUTH_USER_MODEL = "accounts.User"
 MIDDLEWARE = [
