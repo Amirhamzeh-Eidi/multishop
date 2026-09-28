@@ -15,3 +15,19 @@ class Brand(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+class Product(models.Model):
+    name = models.CharField(max_length=30)
+    description = models.TextField()
+    short_description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    slug = models.SlugField(blank=True, unique=True)
+    is_active = models.BooleanField(default=True)
+    brand = models.ForeignKey(Brand, related_name="products", on_delete=models.SET_NULL, blank=True, null=True)
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
+    
