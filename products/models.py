@@ -60,3 +60,25 @@ class ProductVariant(models.Model):
 
         return f"{self.product.name} - {attributes or 'Default'}"
 
+class ProductVariantAttribute(models.Model):
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name="variant_attributes",
+    )
+
+    value = models.ForeignKey(
+        AttributeValue,
+        on_delete=models.CASCADE,
+        related_name="variant_attributes",
+    )
+    attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name="variants", blank=True, null=True, editable=False)
+    def save(self, *args, **kwargs):
+        self.attribute = self.value.attribute
+        super().save(*args, **kwargs)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["variant", "value"], name="unique_variant_value"),
+            models.UniqueConstraint(fields=[ "variant","attribute"], name="unique_variant_attribute")
+        ]
+
