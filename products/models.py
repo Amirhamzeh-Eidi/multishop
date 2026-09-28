@@ -100,4 +100,26 @@ class ProductImage(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["products"], condition=models.Q(is_main=True), name="unique_main_image_per_product")
         ]
+        
+class ProductInformation(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
+
+class ProductInformationValue(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="informations")
+    information = models.ForeignKey(ProductInformation, on_delete=models.CASCADE, related_name="values")
+    value = models.CharField(max_length=30)
+    
+    def __str__(self):
+        return f"{self.information.name}: {self.value}"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product", "information"], 
+                name="unique_product_information"
+            )
+        ]
 
