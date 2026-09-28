@@ -48,3 +48,8 @@ class ProductVariantInline(admin.TabularInline):
     variant_name.short_description = "Variant"
 
 
+@admin.register(models.Product)
+class ProductAdmin(admin.ModelAdmin):
+    inlines = [ProductVariantInline, ProductImageInline, ProductInformationValueInline]
+
+
