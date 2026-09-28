@@ -44,3 +44,19 @@ class AttributeValue(models.Model):
     def __str__(self):
         return f"{self.attribute.name}: {self.value}"
     
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    stock = models.PositiveIntegerField()
+    price = models.PositiveIntegerField()
+
+    def __str__(self):
+        if not self.pk:
+            return "Unsaved Product Variant"
+
+        attributes = ", ".join(
+            item.value
+            for item in self.variant_attributes.select_related("value")
+        )
+
+        return f"{self.product.name} - {attributes or 'Default'}"
+
