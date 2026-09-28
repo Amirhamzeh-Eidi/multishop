@@ -54,6 +54,10 @@ class ProductVariantInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductVariantInline, ProductImageInline, ProductInformationValueInline]
 
+admin.site.register(models.Brand)
+admin.site.register(models.Attribute)
+
+
 class ProductVariantAttributeInline(admin.TabularInline):
     model = models.ProductVariantAttribute
     formset = forms.ProductVariantAttributeFormSet
@@ -65,3 +69,27 @@ class ProductVariantAdmin(admin.ModelAdmin):
     def has_module_permission(self, requesest):
         return False
 
+@admin.register(models.AttributeValue)
+class AttributeValueAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+        
+
+@admin.register(models.ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+
+
+@admin.register(models.ProductInformation)
+class ProductInformationAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+
+
+@admin.register(models.ProductInformationValue)
+class ProductInformationValueAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
