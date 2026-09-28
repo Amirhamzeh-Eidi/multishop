@@ -1,6 +1,8 @@
 from django.contrib import admin
+from . import forms
 from . import models
 from django.utils.html import format_html
+
 
 
 class ProductImageInline(admin.TabularInline):
@@ -52,4 +54,14 @@ class ProductVariantInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductVariantInline, ProductImageInline, ProductInformationValueInline]
 
+class ProductVariantAttributeInline(admin.TabularInline):
+    model = models.ProductVariantAttribute
+    formset = forms.ProductVariantAttributeFormSet
+    extra = 1
+
+@admin.register(models.ProductVariant)
+class ProductVariantAdmin(admin.ModelAdmin):
+    inlines = [ProductVariantAttributeInline]
+    def has_module_permission(self, requesest):
+        return False
 
