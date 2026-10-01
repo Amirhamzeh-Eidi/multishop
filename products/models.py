@@ -54,7 +54,7 @@ class ProductVariant(models.Model):
             return "Unsaved Product Variant"
 
         attributes = ", ".join(
-            item.value
+            str(item.value)
             for item in self.variant_attributes.select_related("value")
         )
 
@@ -85,7 +85,7 @@ class ProductVariantAttribute(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="product/img/products")
-    is_main = models.BooleanField(default=False)
+    is_main = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.product.name} - {'Main' if self.is_main else 'image'}"
@@ -98,7 +98,7 @@ class ProductImage(models.Model):
     class Meta:
         ordering = ["-is_main", "created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["products"], condition=models.Q(is_main=True), name="unique_main_image_per_product")
+            models.UniqueConstraint(fields=["product"], condition=models.Q(is_main=True), name="unique_main_image_per_product")
         ]
         
 class ProductInformation(models.Model):

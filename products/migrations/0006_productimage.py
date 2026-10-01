@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['-is_main', 'created_at'],
-                'constraints': [models.UniqueConstraint(condition=models.Q(('is_main', True)), fields=('products',), name='unique_main_image_per_product')],
+                'constraints': [models.UniqueConstraint(condition=models.Q(('is_main', True)), fields=('product',), name='unique_main_image_per_product')],
             },
         ),
     ]
